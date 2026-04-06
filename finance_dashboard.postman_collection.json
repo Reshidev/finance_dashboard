@@ -1,0 +1,465 @@
+{
+  "info": {
+    "name": "Finance Dashboard API",
+    "description": "Postman collection for the Django finance_dashboard REST API. Includes authentication, user management, dashboard summary, and financial record CRUD endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Authentication endpoints for login and token refresh.",
+      "item": [
+        {
+          "name": "Login - Obtain JWT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login successful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+                  "    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Token refresh successful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/token/refresh/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "token",
+                "refresh",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "User registration and administration endpoints.",
+      "item": [
+        {
+          "name": "Register New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"Analyst\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/register/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "register",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "High-level summary of total income, expense, and net balance.",
+      "item": [
+        {
+          "name": "Get Dashboard Summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Financial Records",
+      "description": "CRUD operations for financial records. Read operations require Analyst or Admin role; write operations require Admin.",
+      "item": [
+        {
+          "name": "List Financial Records",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/records/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Financial Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1250.50,\n  \"type\": \"income\",\n  \"category\": \"Consulting\",\n  \"date\": \"2026-04-01\",\n  \"notes\": \"April consulting invoice\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/records/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Financial Record by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/records/:id/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                ":id",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Financial Record",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1300.00,\n  \"type\": \"income\",\n  \"category\": \"Consulting\",\n  \"date\": \"2026-04-01\",\n  \"notes\": \"Updated invoice amount\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/records/:id/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                ":id",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Financial Record",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Corrected note text\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/records/:id/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                ":id",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Financial Record",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/records/:id/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "records",
+                ":id",
+                ""
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
