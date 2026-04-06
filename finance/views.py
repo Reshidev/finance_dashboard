@@ -10,10 +10,19 @@ from django.db.models import Sum
 class FinancialRecordViewSet(viewsets.ModelViewSet):
     queryset = FinancialRecord.objects.all()
     serializer_class = FinancialRecordSerializer
-    permission_classes = [IsAnalystOrAdminReadOnly]  
+    permission_classes = [IsAnalystOrAdminReadOnly]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'Viewer':
+            return FinancialRecord.objects.filter(created_by=user)
+        return FinancialRecord.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
 class DashboardSummaryView(APIView):
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         income = FinancialRecord.objects.filter(type='income').aggregate(Sum('amount'))['amount__sum'] or 0
